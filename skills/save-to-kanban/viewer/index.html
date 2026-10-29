@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kanban</title>
+  <!-- Declares Tailwind's layer order before shadcn-html's @layer components, so Tailwind's reset
+       (base) sits under the components instead of over them. -->
+  <style>@layer theme, base, components, utilities;</style>
+  <link rel="stylesheet" href="vendor/shadcn-html/tokens.css">
+  <link rel="stylesheet" href="vendor/shadcn-html/card.css">
+  <link rel="stylesheet" href="vendor/shadcn-html/badge.css">
+  <link rel="stylesheet" href="vendor/shadcn-html/button.css">
+  <link rel="stylesheet" href="vendor/shadcn-html/input.css">
+  <link rel="stylesheet" href="vendor/shadcn-html/select.css">
+  <link rel="stylesheet" href="vendor/shadcn-html/sheet.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+  <style>
+    body { background: var(--background); color: var(--foreground); font-family: var(--font-sans); }
+    .tile { cursor: pointer; text-align: left; width: 100%; }
+    .tile:hover { border-color: var(--ring); }
+    .tile:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+    .muted { color: var(--muted-foreground); }
+    .notes { white-space: pre-wrap; font-family: var(--font-mono); font-size: 0.75rem; }
+    /* The body scrolls, so the title and close button stay put. */
+    dialog.sheet { width: min(32rem, 100vw); overflow: hidden; }
+    dialog.sheet .sheet-content { height: 100%; display: flex; flex-direction: column; }
+    dialog.sheet .sheet-body { flex: 1; min-height: 0; overflow-y: auto; }
+    .badge.owner { max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="flex flex-wrap items-center gap-3 border-b px-4 py-3" style="border-color: var(--border)">
+    <h1 class="text-lg font-semibold">Kanban</h1>
+    <select class="select w-auto" id="board" aria-label="Board"></select>
+    <input class="input w-56" type="search" id="search" placeholder="Search id, title, detail" aria-label="Search">
+    <select class="select w-auto" id="kind" aria-label="Kind"><option value="">All kinds</option></select>
+    <span class="muted ml-auto text-xs" id="generated"></span>
+  </header>
+
+  <main id="lanes" class="flex gap-4 overflow-x-auto p-4"></main>
+
+  <dialog id="card-sheet" class="sheet" data-side="right" aria-labelledby="sheet-title">
+    <div class="sheet-content">
+      <div class="sheet-header">
+        <h2 class="sheet-title" id="sheet-title"></h2>
+        <p class="sheet-description" id="sheet-description"></p>
+      </div>
+      <div class="sheet-body flex flex-col gap-4 pb-6" id="sheet-body"></div>
+    </div>
+    <button class="sheet-close-x" data-sheet-close aria-label="Close">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </dialog>
+
+  <script src="data.js"></script>
+  <script src="viewer.js"></script>
+</body>
+</html>
