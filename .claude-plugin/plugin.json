@@ -1,0 +1,9 @@
+{
+  "name": "kanban-workplan",
+  "version": "0.1.0",
+  "description": "Set up repo-local kanban boards, save cards, and have agents work the Up next lane with QA and one PR per card",
+  "author": {
+    "name": "Jerico Lawrence"
+  },
+  "repository": "https://github.com/jericolawrence/kanban-workplan"
+}

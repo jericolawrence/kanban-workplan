@@ -1,0 +1,14 @@
+{
+  "name": "kanban-workplan",
+  "description": "A kanban board for coding agents that lives in your repo",
+  "owner": {
+    "name": "Jerico Lawrence"
+  },
+  "plugins": [
+    {
+      "name": "kanban-workplan",
+      "source": "./",
+      "description": "Set up repo-local kanban boards, save cards, and have agents work the Up next lane with QA and one PR per card"
+    }
+  ]
+}

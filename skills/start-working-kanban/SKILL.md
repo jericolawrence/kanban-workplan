@@ -8,7 +8,8 @@ disable-model-invocation: true
 
 You are the coordinator. Run this in a **local** session on the approver's machine, in any agent (Claude Code,
 Codex, Cursor): dev sessions are local too, each in its own worktree, because dev and QA need this
-machine's build tools, simulators, browser and Figma tools. You write the board; dev sessions never do.
+machine's build tools, simulators, browser and Figma tools. You write the board; dev sessions never do. No `.claude/kanban.json` or no
+`.claude/skills/save-to-kanban/kanban.sh` in the repo: offer `/setup-kanban-space` and stop.
 
 Read first: [cards.md](../save-to-kanban/cards.md) (config, board, schema, rules), the board's
 backend file ([notion.md](../save-to-kanban/notion.md): read-check-write claims, so Notion boards

@@ -8,22 +8,29 @@ Works with Claude Code, Codex and Cursor.
 
 ## Install
 
+**Claude Code plugin**
+
+```
+/plugin install kanban-workplan --marketplace jericolawrence/kanban-workplan
+```
+
+Then, in your repo:
+
+```
+/kanban-workplan:setup-kanban-space
+```
+
+**Skills CLI** (Claude Code, Codex, Cursor), run from the root of your repo:
+
 ```bash
 npx skills add jericolawrence/kanban-workplan -a claude-code
 ```
 
-Run it from the root of your repo. Using Codex or Cursor? Add them to the command
-(`-a claude-code -a codex -a cursor`). Keep `claude-code` in the list either way, because the
-scripts run from `.claude/skills/`.
+Using Codex or Cursor? Add them to the command (`-a claude-code -a codex -a cursor`), and keep
+`claude-code` in the list. Then ask your agent to run `/setup-kanban-space`.
 
-Then ask your agent:
-
-```
-/setup-kanban-space
-```
-
-Setup reads the repo, asks you one question to confirm, then creates the boards and opens a PR.
-Teammates pull and run the same command to join.
+Setup reads the repo and asks you one question to confirm. It copies the kit into the repo's
+`.claude/skills/`, creates the boards and opens a PR. Teammates pull and run setup again to join.
 
 ## Skills
 

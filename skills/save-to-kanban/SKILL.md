@@ -9,8 +9,9 @@ Turn each fix or follow-up into one slim card in the `backlog` lane, confirm in 
 Build nothing. Read [cards.md](cards.md) first (the config, which board, the card schema, the
 rules), then the board's backend file: [notion.md](notion.md) for `"type": "notion"`,
 [local.md](local.md) for `"type": "local"`. Works in any agent with a shell (and the Notion MCP for
-Notion boards): Claude Code, Codex, Cursor. No `.claude/kanban.json`: say the project has no
-kanban yet and offer `/setup-kanban-space`.
+Notion boards): Claude Code, Codex, Cursor. No `.claude/kanban.json`, or no `.claude/skills/save-to-kanban/kanban.sh` in the repo (the kit was
+installed as a plugin and setup never ran here): say the project has no kanban yet and offer
+`/setup-kanban-space`.
 
 ## Steps
 

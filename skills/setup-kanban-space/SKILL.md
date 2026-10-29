@@ -12,8 +12,16 @@ everything project-specific from `.claude/kanban.json`; this skill writes it. Re
 you build. Works in Claude Code, Codex and Cursor; "ask" means `AskUserQuestion` where it exists,
 otherwise a question in chat and a stop until the answer.
 
+**Kit in the repo.** The scripts run from the repo's `.claude/skills/`, so the kit has to live there.
+If this skill's folder is not `<repo root>/.claude/skills/setup-kanban-space` (installed as a plugin
+or for all projects), copy the kit in first: for each of `save-to-kanban`, `setup-kanban-space` and
+`start-working-kanban`, `mkdir -p .claude/skills/<name> && cp -R <this skill's folder>/../<name>/.
+.claude/skills/<name>/`, then `chmod +x` `save-to-kanban/kanban.sh` and `start-working-kanban/watch.sh`.
+Setup's commit then carries those folders, so teammates get the kit with the repo. In an existing
+setup, the same copy updates the repo's kit; say which files changed.
+
 Missing `save-to-kanban` or `start-working-kanban` next to this folder: say the kit needs all three
-folders in `.claude/skills/` and stop.
+folders and stop.
 
 ## 0. Which job
 
@@ -130,7 +138,7 @@ Each board in `kanban.json` `boards`: `{"type": "local"|"notion", "title", "owne
    setup's yes covered this one card). Any mismatch is a failed setup: report it and stop.
 2. **Watcher:** `bash .claude/skills/start-working-kanban/watch.sh --filter <(echo '[]')` exits 0.
 3. **Commit** on a new branch `kanban/setup` from the default branch, adding only the paths setup
-   wrote: `.claude/kanban.json`, `.gitignore`, the new symlinks and the agent doc (never
+   wrote: the three kit folders in `.claude/skills/` when setup copied them in, `.claude/kanban.json`, `.gitignore`, the new symlinks and the agent doc (never
    `kanbans/`). Use your runtime's commit attribution. Push the branch; with a GitHub `repo`, open a
    PR (`gh pr create`) titled "Set up the agent kanban". No GitHub: say the branch is pushed and the
    team merges it their own way. Never commit to the default branch directly.
