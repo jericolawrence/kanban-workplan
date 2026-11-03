@@ -313,11 +313,15 @@ cmd_view() {
 # The viewer as one file: data.js and viewer.js inlined, for a hosted page (a claude.ai
 # artifact, a ChatGPT Site) that cannot load the files beside it. Card images are left out.
 cmd_share_page() {
-  local v="$K/.view" line
+  local v="$K/.view" line title
   pull
   refresh_view
+  # A host names the page from its <title>, so give it the project's name, HTML-escaped.
+  title=$(jq -r '((.project.name // (.repo // "" | split("/") | last)) | if . == "" then "Kanban" else . + " kanban" end)
+    | gsub("&"; "&amp;") | gsub("<"; "&lt;") | gsub(">"; "&gt;")' "$config" 2>/dev/null || echo Kanban)
   while IFS= read -r line; do
     case "$line" in
+      '<title>Kanban</title>') printf '<title>%s</title>\n' "$title" ;;
       *'<script src="data.js">'*) printf '<script>\n'; cat "$v/data.js"; printf '\n</script>\n' ;;
       *'<script src="viewer.js">'*) printf '<script>\n'; cat "$v/viewer.js"; printf '\n</script>\n' ;;
       *) printf '%s\n' "$line" ;;
