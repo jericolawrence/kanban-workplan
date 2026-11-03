@@ -18,7 +18,9 @@ or for all projects), copy the kit in first: for each of `save-to-kanban`, `setu
 `start-working-kanban`, `mkdir -p .claude/skills/<name> && cp -R <this skill's folder>/../<name>/.
 .claude/skills/<name>/`, then `chmod +x` `save-to-kanban/kanban.sh` and `start-working-kanban/watch.sh`.
 Setup's commit then carries those folders, so teammates get the kit with the repo. In an existing
-setup, the same copy updates the repo's kit; say which files changed.
+setup, the same copy updates the repo's kit; say which files changed. Never downgrade: compare
+`save-to-kanban/VERSION` here with the repo's (a missing file is `0`), and when the repo's is newer,
+use the repo's kit as it is and tell the user their installed plugin is out of date and to update it.
 
 Missing `save-to-kanban` or `start-working-kanban` next to this folder: say the kit needs all three
 folders and stop.
