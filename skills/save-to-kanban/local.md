@@ -14,12 +14,16 @@ kanbans/
   <board>/board.json        {title, prefix, areas, nextId, owner}
   <board>/cards/<ID>.json   one card, the cards.md fields under their own names
   <board>/assets/<ID>-<n>.png
-  .view/                    the read-only viewer, rebuilt by kanban.sh; never committed
+  .view/                    the read-only board page, rebuilt by kanban.sh; never committed
 ```
 
 Every `kanban.sh` write, `sync` and `init` rebuilds `.view/` (the files in [viewer/](viewer/) plus a
 `data.js` of every board), so `kanbans/.view/index.html` is always current, whichever branch the
-main checkout is on. `kanban.sh` keeps `.view/` out of git by adding `/.view/` to the repo's local
+main checkout is on. The page is the One Board inbox: a sidebar of views and boards, sections for
+Needs you, Running, Up next, Backlog and Done, and a details drawer. `viewer/index.html` is generated
+from [one-board/board-kit.md](one-board/board-kit.md) by `one-board/make-viewer.py`; edit the kit,
+then regenerate, never the other way round. `viewer/viewer.js` maps the cards into the page.
+`kanban.sh` keeps `.view/` out of git by adding `/.view/` to the repo's local
 exclude file (`git rev-parse --git-path info/exclude`); it is never in a commit.
 
 ## Hosted board page
@@ -30,7 +34,7 @@ tool the session has, never by guessing the model, since any agent can run any m
 
 | Runtime has | `view.kind` | Publish `share.html` as |
 |---|---|---|
-| The Artifact tool (Claude Code, claude.ai) | `artifact` | A private artifact (`Artifact` publish, `file_path` = `share.html`, title "<repo> kanban"); the update later is the same call with `url`. |
+| The Artifact tool (Claude Code, claude.ai) | `artifact` | A private artifact (`Artifact` publish, `file_path` = `share.html`, title "<project.name> kanban"); the update later is the same call with `url`. |
 | ChatGPT Sites (Codex) | `site` | A Site, private to the owner until they choose who can visit; later updates are republishes of the same Site. |
 | Neither (Grok, others) | `html` | Nothing hosted: open `kanban.sh view`. |
 

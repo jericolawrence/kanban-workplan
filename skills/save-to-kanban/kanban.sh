@@ -292,7 +292,8 @@ refresh_view() {
         notesText: (if .notes then $n[.notes] else null end),
         imageUrls: ((.images // []) | map("../\($key)/\(.)"))}))}'
   done | jq -s --arg repo "$(jq -r '.repo // empty' "$config" 2>/dev/null)" --arg at "$(date '+%Y-%m-%d %H:%M')" \
-    '"window.KANBAN = " + ({repo: (if $repo == "" then null else $repo end), generated: $at,
+    --arg name "$(jq -r '.project.name // empty' "$config" 2>/dev/null)" \
+    '"window.KANBAN = " + ({repo: (if $repo == "" then null else $repo end), name: (if $name == "" then null else $name end), generated: $at,
       boards: sort_by(.title)} | tojson) + ";"' -r > "$out/data.js"
 }
 
@@ -309,17 +310,14 @@ cmd_view() {
   elif command -v xdg-open >/dev/null; then xdg-open "$url"; fi
 }
 
-# The viewer as one file: the vendor CSS, data.js and viewer.js inlined, for a hosted page (a claude.ai
+# The viewer as one file: data.js and viewer.js inlined, for a hosted page (a claude.ai
 # artifact, a ChatGPT Site) that cannot load the files beside it. Card images are left out.
 cmd_share_page() {
-  local v="$K/.view" line href
+  local v="$K/.view" line
   pull
   refresh_view
   while IFS= read -r line; do
     case "$line" in
-      *'<link rel="stylesheet" href="vendor/'*)
-        href=${line#*href=\"}; href=${href%%\"*}
-        printf '<style>\n'; cat "$v/$href"; printf '\n</style>\n' ;;
       *'<script src="data.js">'*) printf '<script>\n'; cat "$v/data.js"; printf '\n</script>\n' ;;
       *'<script src="viewer.js">'*) printf '<script>\n'; cat "$v/viewer.js"; printf '\n</script>\n' ;;
       *) printf '%s\n' "$line" ;;

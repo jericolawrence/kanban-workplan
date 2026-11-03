@@ -46,6 +46,7 @@ branch or pushes. Each answer gets a recommended value:
 |---|---|---|
 | backend | `local` | Fixed recommendation: no account needed, and the team shares it through git. |
 | `repo` | The `origin` remote on GitHub | `gh repo view --json nameWithOwner -q .nameWithOwner`, else `owner/name` from a `github.com` URL in `git remote get-url origin`. No GitHub remote → `null`: local boards still work, but tickets, the PR watcher and `/start-working-kanban` need it; say so in the confirm. |
+| `project.name` | The repo's name, readable | The `repo` name after the slash, else the repo's folder name, with `-` and `_` as spaces and each word capitalised (`acme-web` → "Acme Web"). Asked in the confirm. |
 | `approvers` | The person running setup | `repo` found on GitHub → `gh api user --jq '.name // .login'`; otherwise `git config user.name`. Neither → ask for a name in the confirm. |
 | board `owner` | The person running setup, same name as `approvers` | Per board; the confirm asks who owns each board. Candidates: the approvers plus `git shortlog -sn \| head` names. |
 | `maxDev`, `maxQA`, `qaRounds` | 1, 1, 3 | Fixed. Raise `maxDev` later only for local boards. |
@@ -63,24 +64,25 @@ branch or pushes. Each answer gets a recommended value:
 
 ## 2. One confirm
 
-Show the detected settings as a short table (key, value), then ask these questions in one ask,
-the recommendation first and marked "(Recommended)":
+Show the detected settings as a short table (key, value), then ask these four questions in one ask
+(four is `AskUserQuestion`'s limit), the recommendation first and marked "(Recommended)":
 
-1. **Where the boards live:** "Local in the repo (Recommended)": a `kanbans/` folder on its own
+1. **Project name** (titles the board page): the detected name "(Recommended)", or Other to type
+   one. Board names are in the settings table; "Change some" renames them.
+2. **Where the boards live:** "Local in the repo (Recommended)": a `kanbans/` folder on its own
    `kanbans` branch, pushed straight to origin, no account needed. "Notion": one database per
    board under a Notion page; needs the Notion MCP for everyone, and runs one unit at a time.
-2. **Remove done cards after:** "30 days (Recommended)", "60 days", "90 days". (Other: "never" →
-   `null`.)
 3. **Who owns the kanban:** one owner for all boards, or per board. Options: each approver (the
    person running setup first, "(Recommended)"), a name from recent committers, or "Other" for a
    typed name. Ask it even when there is one approver: the owner goes on every card as `ownedBy`.
-4. **The settings above:** "Use these (Recommended)" or "Change some". A value setup couldn't find
-   (no approver name, say) is asked here as its own question instead.
+4. **The settings above** (done-card removal included): "Use these (Recommended)" or "Change some".
+
+A value setup couldn't find (no approver name, say) is asked in chat right after, with nothing else.
 
 Say in the ask what the yes does outside this machine: local pushes a new `kanbans` branch; both
 push a `kanban/setup` branch and open a PR with the config. That yes covers those pushes.
 
-"Change some": ask which (multi-select: repo, approvers, boards and areas, project rules), then
+"Change some": ask which (multi-select: repo, approvers, board names and areas, done-card removal (30, 60 or 90 days, or never), project rules), then
 ask each one in chat with its recommended value shown, and change nothing else.
 
 ## 3. Build the boards
@@ -94,9 +96,7 @@ ask each one in chat with its recommended value shown, and change nothing else.
 3. Per board, the default board last: `kanban.sh new-board <key> "<title>" <PREFIX> <area...>`,
    then `kanban.sh board-owner <key> "<owner>"`.
 4. **Board view.** Every `kanban.sh` write rebuilds `kanbans/.view/` from `save-to-kanban/viewer/`,
-   a read-only board page (lanes, search, card sheet) styled with the vendored
-   [shadcn-html](https://shadcn-html.netlify.app/documentation/index.html) tokens and component CSS
-   in `viewer/vendor/shadcn-html/`. Setup is not done until it exists: `kanbans/.view/index.html`
+   the read-only One Board page titled with `project.name` (see local.md). Setup is not done until it exists: `kanbans/.view/index.html`
    and `data.js` are there. Missing: `kanban.sh sync`. Notion-only setups have no viewer; say so in the report.
 5. **Hosted board page, in this runtime's own tool.** Setup creates it where the agent running setup
    lives: `bash .claude/skills/save-to-kanban/kanban.sh share-page`, then publish the file it prints

@@ -15,7 +15,7 @@ hard-code a repo or a name.
   "maxDev": 1, "maxQA": 1, "qaRounds": 3, "doneRetentionDays": 30,
   "notion": { "root": "<page url>" }, "local": { "dir": "kanbans", "branch": "kanbans" },
   "view": { "kind": "artifact", "url": "<hosted page url>" },
-  "project": { "designDoc": "docs/design.md", "verifySkill": "verify-app", "uiRules": "…",
+  "project": { "name": "Acme", "designDoc": "docs/design.md", "verifySkill": "verify-app", "uiRules": "…",
                "checks": ["npm test"], "clipScript": null, "workingStyle": null },
   "boards": { "mall": { "type": "local", "title": "Mall Board", "owner": "Sam", "areas": ["mall"] },
               "drive": { "type": "notion", "title": "Drive Board", "owner": "Sam", "dataSource": "collection://…", "areas": ["drive"] } } }
@@ -32,6 +32,7 @@ hard-code a repo or a name.
 | `notion.root` | The Notion page new Notion boards go under. |
 | `local` | The folder and branch of the local boards. |
 | `view` | The board page hosted in the setup runtime's own tool: `kind` is `artifact` (Claude: a private claude.ai artifact), `site` (Codex: a ChatGPT Site) or `html` (any other agent: the local `kanbans/.view/index.html`, `url` `null`). `url` is the hosted page. `null` or missing: only the local viewer. See local.md "Hosted board page". |
+| `project.name` | The project's name, asked at setup. The board page shows it as its title and brand. `null`: the repo name. |
 | `project` | The project's own rules, passed to dev and QA: the design doc to read before UI work, the verify skill QA drives the screen with, the UI rules QA checks, the commands that prove a change works (`checks`: build, lint, types, tests; dev runs them before signalling and QA runs them again), an optional clip-recording script, and the team's working-style doc, where stack-specific steps (a native build, a design tool) live. A `null` key is skipped. |
 
 ## Which board
