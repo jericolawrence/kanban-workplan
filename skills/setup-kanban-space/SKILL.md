@@ -148,6 +148,10 @@ Each board in `kanban.json` `boards`: `{"type": "local"|"notion", "title", "owne
 5. **Report** in a few lines: the backend, each board with its prefix, the `kanban.sh view` command, the hosted board page link and that it is private (or why there is none), the PR link (or the
    branch), and what a teammate does after it merges: pull, then `/setup-kanban-space` (it joins
    their machine). For Notion: share the root page with them.
+   End the report by saying the board page uses the One Board design by default and can be
+   customized by asking, with two or three of the sample prompts from the kit's README
+   "Customize the board page" (colours and fonts, section names, rows per section). How: edit the
+   page in `save-to-kanban/one-board/board-kit.md`, run `one-board/make-viewer.py`, then `kanban.sh view`.
 
 ## Add a board
 

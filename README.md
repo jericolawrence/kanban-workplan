@@ -46,6 +46,21 @@ Setup reads the repo and asks you one question to confirm. It copies the kit int
 - **One script writes the boards.** `kanban.sh` makes each write a commit pushed to origin. Each card is its own file, and writes take turns, so parallel agents never lose a card.
 - **You see everything on one page.** Every write rebuilds `kanbans/.view/index.html`. Open it with `kanban.sh view`.
 
+## Customize the board page
+
+The board page uses the One Board design by default. To change it, ask your agent in plain words. For example:
+
+- "Change the kanban board's colours to our brand: accent `#0F766E`, background `#FAFAF7`, font Inter."
+- "Rename the board sections to Blocked, In progress, Queued, Icebox and Shipped."
+- "Show 10 rows per section on the board before Show all."
+- "Only show done cards from the last 7 days on the board."
+- "Make the kanban board always dark."
+
+The page lives in `.claude/skills/save-to-kanban/one-board/board-kit.md` (its "Theming" table lists
+every token). The agent edits the page there, runs `python3 .claude/skills/save-to-kanban/one-board/make-viewer.py`
+to rebuild `viewer/index.html`, then `kanban.sh view`. Re-running `install.sh` replaces the kit's
+files, so commit your changes and reapply them after an update.
+
 ## Requirements
 
 - `git`, `bash` and `jq`. On Windows, use WSL or Git Bash.
