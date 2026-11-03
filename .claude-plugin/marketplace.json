@@ -9,7 +9,7 @@
       "name": "kanban-workplan",
       "source": "./",
       "description": "Set up repo-local kanban boards, save cards, and have agents work the Up next lane with QA and one PR per card",
-      "version": "0.2.0"
+      "version": "0.3.0"
     }
   ]
 }

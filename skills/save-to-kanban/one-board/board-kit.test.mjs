@@ -200,6 +200,44 @@ async function open(url, opts = {}) {
   await ctx.close();
 }
 
+{ // Markdown in card details.
+  const detail = [
+    '# Goal', 'Line one', 'line two with **bold**, *italic*, _under_ and `a<b>`', '',
+    '- one', '- two [docs](https://example.com/a_b_c?x=1&y=2)', '1. first', '2. second',
+    '- [x] done task', '- [ ] open task', '> quoted', '---',
+    '```', '<script>window.__md=1</script> **not bold**', '```',
+    'Bare https://example.com/p_q_r. end',
+    '[bad](javascript:window.__md=2) <img src=x onerror="window.__md=3"> [x](https://e.com/" onmouseover="window.__md=4)',
+    'ctrl \u0000 0 \u0000 char',
+  ].join('\n');
+  const url = build('md', [{ id: 'M-1', title: 'Markdown', status: 'next', board: 'web', detail }]);
+  const { page, ctx, errors } = await open(url, { viewport: { width: 1280, height: 900 } });
+  await page.click('[data-card="M-1"]'); await page.waitForTimeout(300);
+  const q = sel => page.locator('#dw-body .md ' + sel);
+  check(await q('h3').innerText() === 'Goal', 'md: # heading renders under the card title');
+  check(await q('p').first().evaluate(e => e.innerHTML.includes('<br>')), 'md: line breaks kept inside a paragraph');
+  check(await q('strong').first().innerText() === 'bold' && await q('em').count() === 2, 'md: bold and both italics');
+  check(await q('p code').first().innerText() === 'a<b>', 'md: inline code escaped');
+  check(await q('ul:not(.tasks) li').count() === 2 && await q('ol li').count() === 2, 'md: bullet and numbered lists');
+  check(await q('a[href="https://example.com/a_b_c?x=1&y=2"]').innerText() === 'docs', 'md: link with underscores and & stays intact');
+  check(await q('ul.tasks li.done .box.on').count() === 1 && await q('ul.tasks li:not(.done)').count() === 1, 'md: task list checked and unchecked');
+  check(await q('blockquote').innerText() === 'quoted' && await q('hr').count() === 1, 'md: quote and rule');
+  check((await q('pre code').innerText()).includes('**not bold**') && await q('pre strong').count() === 0, 'md: code block kept literal');
+  check(await q('a[href="https://example.com/p_q_r"]').count() === 1, 'md: bare link, trailing period left out');
+  check(await page.evaluate(() => window.__md) === undefined, 'md: no injected script ran');
+  check(await q('img').count() === 0 && await q('a[href^="javascript"]').count() === 0, 'md: no raw HTML or javascript: links');
+  check(await q('a[onmouseover]').count() === 0, 'md: quotes cannot break out of href');
+  check(errors.length === 0, 'md: no console errors ' + errors.join(' | '));
+  await ctx.close();
+}
+
+{ // Sample card shows formatting out of the box.
+  const { page, ctx } = await open(urls.sample, { viewport: { width: 1280, height: 900 } });
+  await page.click('[data-card="MOB-2"]'); await page.waitForTimeout(300);
+  check(await page.locator('#dw-body .md h4').innerText() === 'Goal' && await page.locator('#dw-body .md ul.tasks li').count() === 2, 'sample: formatted description');
+  await ctx.close();
+}
+
 await browser.close();
 console.log(fails ? `${fails} FAILED` : 'ALL PASSED');
 process.exit(fails ? 1 : 0);

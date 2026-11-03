@@ -10,7 +10,7 @@ Works with Claude Code, Codex and Cursor.
 
 **Claude Code plugin**
 
-Already installed? Update it to 0.2.0 or later first; older versions install the old board page.
+Already installed? Update it to the latest version first; older versions install the old board page.
 
 ```
 /plugin install kanban-workplan --marketplace jericolawrence/kanban-workplan

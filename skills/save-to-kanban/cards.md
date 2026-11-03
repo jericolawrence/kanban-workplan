@@ -59,7 +59,7 @@ One card per row. Keep it slim: no spec text, no logs, no screenshots inline.
 | Field | Type | Notes |
 |---|---|---|
 | `title` | string | Under 80 chars, says what changes ("Sort sheet title clips at AX5"). |
-| `detail` | string | 1–3 sentences: what is wrong and what done looks like. |
+| `detail` | string | 1–3 sentences: what is wrong and what done looks like. Markdown shows formatted on the board page (headings, lists, `- [ ]` tasks, links, `code`, **bold**). |
 | `kind` | `"fix"` \| `"ticket"` | `fix` = small fix or follow-up, batched. `ticket` = from `to-tickets`, one PR each. |
 | `area` | string | Feature or folder, lowercase (`drive`, `mall`, `infra`). Batches group by it. |
 | `where` | string? | `path/to/File.swift:42`, a screen code, or a canvas frame. |

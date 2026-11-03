@@ -55,7 +55,7 @@ The page reads two JSON blocks. Nothing else in the page needs to change.
 | `branch` | no | Git branch name. |
 | `pr` | no | Full pull request URL. A `/pull/<n>` URL shows as `#n`. |
 | `issue` | no | Issue number (linked through `issueUrl`) or a full URL. |
-| `detail` | no | Plain text description. Line breaks are kept. |
+| `detail` | no | Description in Markdown: `#` headings, `-` and `1.` lists, `- [ ]` / `- [x]` task lists, `> ` quotes, fenced code blocks, `` `code` ``, `**bold**`, `*italic*`, `---` rules, `[text](https://…)` and bare links. Line breaks inside a paragraph are kept. No raw HTML or images. |
 | `createdAt`, `updatedAt` | no | `YYYY-MM-DD`, optionally followed by `T` or a space and `HH:MM`, such as `2026-01-31T14:05`. Shown as written, with no time zone conversion, so export them in the zone your team reads. Newest `updatedAt` sorts first and shows as "Updated" in the header. |
 
 Keys are exact and case-sensitive: `status`, `type` and `board` values must match the config. Normalise case in your exporter. An unknown `status` counts as `backlog` and an unknown `type` as the first type, and each one logs a `console.warn` once, so check the console after a new export.
@@ -241,8 +241,25 @@ html[data-drawer] .drawer { transform: none; visibility: visible; transition: tr
 .dw-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 20px max(16px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) 20px; display: flex; flex-direction: column; gap: 18px; }
 .dw-body h2 { margin: 0; font-size: 18px; line-height: 1.3; font-weight: 600; letter-spacing: -0.01em; overflow-wrap: anywhere; }
 .dw-need { font-size: 13px; color: var(--need); background: color-mix(in srgb, var(--need) 10%, transparent); padding: 10px 12px; border-radius: 8px; }
-.dw-body p { margin: 0; white-space: pre-line; overflow-wrap: anywhere; line-height: 1.6; }
+.dw-body p { margin: 0; overflow-wrap: anywhere; line-height: 1.6; }
 .dw-body p.none { color: var(--muted); }
+/* Card description: a Markdown subset (see md()). */
+.md { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.md :is(h3, h4, h5) { margin: 6px 0 0; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.md h3 { font-size: 16px; } .md h4 { font-size: 14px; } .md h5 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.md :is(ul, ol) { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; line-height: 1.5; }
+.md li { overflow-wrap: anywhere; }
+.md li::marker { color: var(--muted); }
+.md ul.tasks { list-style: none; padding-left: 0; }
+.md .box { display: inline-block; box-sizing: border-box; width: 13px; height: 13px; margin-right: 8px; vertical-align: -2px; border: 1.5px solid var(--muted); border-radius: 3px; }
+.md .box.on { background: var(--ok); border-color: var(--ok); position: relative; }
+.md .box.on::after { content: ""; position: absolute; left: 3px; top: 0; width: 4px; height: 7px; border: solid var(--surface); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.md li.done { color: var(--muted); text-decoration: line-through; }
+.md blockquote { margin: 0; padding: 2px 0 2px 12px; border-left: 2px solid var(--line); color: var(--muted); }
+.md hr { width: 100%; border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+.md :not(pre) > code { font: 12px/1.4 var(--mono); padding: 1px 5px; border-radius: 4px; background: color-mix(in srgb, var(--fg) 7%, transparent); overflow-wrap: anywhere; }
+.md pre { margin: 0; padding: 10px 12px; border-radius: 8px; background: color-mix(in srgb, var(--fg) 5%, transparent); overflow-x: auto; }
+.md pre code { font: 12px/1.5 var(--mono); white-space: pre; }
 .dw-body dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; margin: 0; font-size: 13px; padding-top: 16px; border-top: 1px solid var(--line); }
 .dw-body dt { color: var(--muted); }
 .dw-body dd { margin: 0; overflow-wrap: anywhere; }
@@ -299,7 +316,7 @@ html[data-drawer] .drawer { transform: none; visibility: visible; transition: tr
   { "id": "WEB-1", "title": "Sign-in page", "status": "review", "board": "web", "type": "dev", "pr": "https://github.com/OWNER/REPO/pull/12", "updatedAt": "2026-01-02T10:00" },
   { "id": "WEB-2", "title": "Settings layout", "status": "doing", "board": "web", "type": "design", "owner": "Sam", "progress": "2 of 3 screens", "updatedAt": "2026-01-02T09:00" },
   { "id": "MOB-1", "title": "Push notifications", "status": "next", "board": "mobile", "updatedAt": "2026-01-01T12:00" },
-  { "id": "MOB-2", "title": "Offline mode", "status": "backlog", "board": "mobile", "detail": "Cache the last 50 items.", "updatedAt": "2026-01-01T08:00" }
+  { "id": "MOB-2", "title": "Offline mode", "status": "backlog", "board": "mobile", "detail": "## Goal\nThe app works on a plane.\n\n- [x] Cache the last **50** items\n- [ ] Queue writes until online\n\nSee [the spec](https://example.com/offline) and `sync.ts`.", "updatedAt": "2026-01-01T08:00" }
 ]
 </script>
 <script>
@@ -446,6 +463,51 @@ function render() {
 const safeUrl = u => /^https?:\/\//i.test(u) ? u : '';
 const link = (href, text) => safeUrl(href) ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(text)}</a>` : esc(text);
 const issueLink = i => /^https?:\/\//i.test(i) ? link(i, '#' + ((i.match(/(\d+)\/?$/) || [])[1] || 'link')) : CONFIG.issueUrl ? link(CONFIG.issueUrl.replace('{id}', encodeURIComponent(i)), `#${i}`) : `#${esc(i)}`;
+// A Markdown subset for card descriptions: headings, lists, task lists, quotes, code, rules, links,
+// bold and italic. Text is escaped first and only http(s) links are made, so card text can't inject HTML.
+function inline(t) {
+  const kept = [];
+  const keep = html => `\u0000${kept.push(html) - 1}\u0000`;
+  const a = (url, text) => keep(`<a href="${url}" target="_blank" rel="noopener">${text}</a>`);
+  t = t.replace(/`([^`]+)`/g, (_, code) => keep(`<code>${code}</code>`));
+  t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, text, url) => a(url, text));
+  t = t.replace(/(^|[\s(])(https?:\/\/[^\s<)]+[^\s<).,;:!?])/g, (_, pre, url) => pre + a(url, url));
+  t = t.replace(/\*\*(?=\S)(.+?)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/(^|[^\w*])\*(?=\S)(.+?)\*(?!\w)/g, '$1<em>$2</em>').replace(/(^|[^\w])_(?=\S)(.+?)_(?!\w)/g, '$1<em>$2</em>');
+  return t.replace(/\u0000(\d+)\u0000/g, (_, i) => kept[i]);
+}
+function md(src) {
+  const lines = esc(String(src).replace(/\u0000/g, '')).replace(/\r\n?/g, '\n').split('\n');
+  const out = []; let para = [], list = null;
+  const flushPara = () => { if (para.length) out.push(`<p>${para.map(inline).join('<br>')}</p>`); para = []; };
+  const flushList = () => { if (list) out.push(`<${list.tag}${list.tasks ? ' class="tasks"' : ''}>${list.items.join('')}</${list.tag}>`); list = null; };
+  const flush = () => { flushPara(); flushList(); };
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (/^\s*```/.test(l)) {
+      flush(); const code = [];
+      while (++i < lines.length && !/^\s*```/.test(lines[i])) code.push(lines[i]);
+      out.push(`<pre><code>${code.join('\n')}</code></pre>`); continue;
+    }
+    let m;
+    if (!l.trim()) { flush(); continue; }
+    if ((m = l.match(/^(#{1,6})\s+(.*?)\s*#*$/))) { flush(); const n = Math.min(m[1].length + 2, 5); out.push(`<h${n}>${inline(m[2])}</h${n}>`); continue; }
+    if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(l)) { flush(); out.push('<hr>'); continue; }
+    if ((m = l.match(/^&gt;\s?(.*)$/))) { flush(); out.push(`<blockquote>${inline(m[1])}</blockquote>`); continue; }
+    if ((m = l.match(/^\s*(?:([-*+])|(\d+)[.)])\s+(.*)$/))) {
+      flushPara();
+      const tag = m[1] ? 'ul' : 'ol';
+      if (!list || list.tag !== tag) { flushList(); list = { tag, items: [], tasks: false }; }
+      const task = tag === 'ul' && m[3].match(/^\[([ xX])\]\s+(.*)$/);
+      if (task) { list.tasks = true; const on = task[1] !== ' '; list.items.push(`<li${on ? ' class="done"' : ''}><span class="box${on ? ' on' : ''}" aria-label="${on ? 'Done' : 'To do'}" role="img"></span>${inline(task[2])}</li>`); }
+      else list.items.push(`<li>${inline(m[3])}</li>`);
+      continue;
+    }
+    flushList(); para.push(l);
+  }
+  flush();
+  return out.join('');
+}
 function detail(c) {
   const rows = [
     ['Status', esc(STATUS[c.status].label)],
@@ -460,7 +522,7 @@ function detail(c) {
     ['Dates', [c.createdAt && `Added ${fmtDate(c.createdAt)}`, c.updatedAt && `updated ${fmtDate(c.updatedAt)}`].filter(Boolean).join(', ')],
   ].filter(r => r[1]);
   return `<h2 id="dw-title">${esc(c.title)}</h2>${c.section === 'need' ? `<div class="dw-need">${why(c)}</div>` : ''}` +
-    (c.detail ? `<p>${esc(c.detail)}</p>` : '<p class="none">No description on this card.</p>') +
+    (c.detail ? `<div class="md">${md(c.detail)}</div>` : '<p class="none">No description on this card.</p>') +
     `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
 }
 const root = document.documentElement;
