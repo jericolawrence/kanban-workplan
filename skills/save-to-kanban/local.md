@@ -29,8 +29,9 @@ exclude file (`git rev-parse --git-path info/exclude`); it is never in a commit.
 ## Hosted board page
 
 `kanban.sh share-page` writes `kanbans/.view/share.html`: the viewer as one self-contained file
-(CSS and data inlined, card images left out). Each runtime hosts it in its own tool, picked by the
-tool the session has, never by guessing the model, since any agent can run any model:
+(CSS and data inlined, card images left out). It is hosted only when setup's "Local, Claude artifact
+or Notion" answer was Claude artifact (`view.kind` `artifact`, or `site` in Codex); Local publishes
+nothing. Pick the tool by what the session has, never by guessing the model:
 
 | Runtime has | `view.kind` | Publish `share.html` as |
 |---|---|---|

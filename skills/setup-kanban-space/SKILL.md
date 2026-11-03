@@ -44,7 +44,7 @@ branch or pushes. Each answer gets a recommended value:
 
 | Key | Recommended value | How |
 |---|---|---|
-| backend | `local` | Fixed recommendation: no account needed, and the team shares it through git. |
+| backend | `local` | Recommended: no account needed, and the team shares it through git. Asked in the confirm: Local, Claude artifact or Notion. |
 | `repo` | The `origin` remote on GitHub | `gh repo view --json nameWithOwner -q .nameWithOwner`, else `owner/name` from a `github.com` URL in `git remote get-url origin`. No GitHub remote → `null`: local boards still work, but tickets, the PR watcher and `/start-working-kanban` need it; say so in the confirm. |
 | `project.name` | The repo's name, readable | The `repo` name after the slash, else the repo's folder name, with `-` and `_` as spaces and each word capitalised (`acme-web` → "Acme Web"). Asked in the confirm. |
 | `approvers` | The person running setup | `repo` found on GitHub → `gh api user --jq '.name // .login'`; otherwise `git config user.name`. Neither → ask for a name in the confirm. |
@@ -69,9 +69,15 @@ Show the detected settings as a short table (key, value), then ask these four qu
 
 1. **Project name** (titles the board page): the detected name "(Recommended)", or Other to type
    one. Board names are in the settings table; "Change some" renames them.
-2. **Where the boards live:** "Local in the repo (Recommended)": a `kanbans/` folder on its own
-   `kanbans` branch, pushed straight to origin, no account needed. "Notion": one database per
-   board under a Notion page; needs the Notion MCP for everyone, and runs one unit at a time.
+2. **Local, Claude artifact or Notion:** always these three options, in this order.
+   - "Local (Recommended)": the cards live in a `kanbans/` folder on its own `kanbans` branch,
+     pushed straight to origin, no account needed. You open the board page with `kanban.sh view`.
+   - "Claude artifact": the same local cards, plus the board page published as a private
+     claude.ai artifact you can open from anywhere. It is a snapshot, republished after card
+     changes. Needs the Artifact tool in this session; in Codex, offer "ChatGPT Site" here
+     instead; with neither, say it isn't available here and offer Local.
+   - "Notion": one database per board under a Notion page; needs the Notion MCP for everyone,
+     and runs one unit at a time.
 3. **Who owns the kanban:** one owner for all boards, or per board. Options: each approver (the
    person running setup first, "(Recommended)"), a name from recent committers, or "Other" for a
    typed name. Ask it even when there is one approver: the owner goes on every card as `ownedBy`.
@@ -79,15 +85,16 @@ Show the detected settings as a short table (key, value), then ask these four qu
 
 A value setup couldn't find (no approver name, say) is asked in chat right after, with nothing else.
 
-Say in the ask what the yes does outside this machine: local pushes a new `kanbans` branch; both
-push a `kanban/setup` branch and open a PR with the config. That yes covers those pushes.
+Say in the ask what the yes does outside this machine: Local and Claude artifact push a new
+`kanbans` branch, and Claude artifact also publishes a private artifact; all three push a
+`kanban/setup` branch and open a PR with the config. That yes covers those pushes.
 
 "Change some": ask which (multi-select: repo, approvers, board names and areas, done-card removal (30, 60 or 90 days, or never), project rules), then
 ask each one in chat with its recommended value shown, and change nothing else.
 
 ## 3. Build the boards
 
-**Local:**
+**Local** (also for Claude artifact, which adds step 5):
 
 1. Add a `/kanbans/` line to `.gitignore` (create the file if there is none) unless
    `git check-ignore -q kanbans` already passes.
@@ -98,12 +105,12 @@ ask each one in chat with its recommended value shown, and change nothing else.
 4. **Board view.** Every `kanban.sh` write rebuilds `kanbans/.view/` from `save-to-kanban/viewer/`,
    the read-only One Board page titled with `project.name` (see local.md). Setup is not done until it exists: `kanbans/.view/index.html`
    and `data.js` are there. Missing: `kanban.sh sync`. Notion-only setups have no viewer; say so in the report.
-5. **Hosted board page, in this runtime's own tool.** Setup creates it where the agent running setup
-   lives: `bash .claude/skills/save-to-kanban/kanban.sh share-page`, then publish the file it prints
-   per local.md "Hosted board page" (Artifact tool present: a private artifact; ChatGPT Sites
-   present: a Site; neither: nothing hosted). Pick by the tools this session has, not by model name.
-   Write `view: {"kind", "url"}` into `kanban.json` (`url` `null` for `html`). Publish private and
-   say so. If publishing fails or is declined, set `kind: "html"` and say why in the report.
+5. **Hosted board page, only for Claude artifact (or ChatGPT Site).** Run
+   `bash .claude/skills/save-to-kanban/kanban.sh share-page`, then publish the file it prints per
+   local.md "Hosted board page": a private artifact (a Site in Codex). Write
+   `view: {"kind": "artifact", "url"}` (or `"site"`) into `kanban.json`, and say it is private.
+   Local: write `view: {"kind": "html", "url": null}` and publish nothing. If publishing fails, set
+   `kind: "html"` and say why in the report.
 
 **Notion:**
 
